@@ -10,9 +10,13 @@ maps = pd.read_csv(os.path.dirname(os.path.abspath(__file__))+'/locMapsLinks_car
 random.seed()
 n = random.randint(0,len(maps)-1)
 
-resto = 140 - len(str(maps.iloc[n]["year"])) - len(maps.iloc[n]["link"]) - len(" #CartotecaDigital #ICGC") - 2
+resto = 280 - len(str(maps.iloc[n]["year"])) - len(maps.iloc[n]["link"]) - len(" #CartotecaDigital #ICGC") - 2
 
-if len(maps.iloc[n]["title"]) > resto:
- 		maps.iloc[n]["title"] = maps.iloc[n]["title"][:resto-2] + '...'
+title = maps.iloc[n]["title"]
 
-status = api.PostUpdate(status = maps.iloc[n]["title"] + " " + str(maps.iloc[n]["year"]) + " " + maps.iloc[n]["link"] + " #CartotecaDigital #ICGC" , media = maps.iloc[n]["imageLink"])
+if len(title) > resto:
+ 	title = title[:resto-3] + '...'
+
+text = title + " " + str(maps.iloc[n]["year"]) + " " + maps.iloc[n]["link"] + " #CartotecaDigital #ICGC"
+
+status = api.PostUpdate(status = text , media = maps.iloc[n]["imageLink"])
