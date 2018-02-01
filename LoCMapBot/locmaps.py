@@ -1,49 +1,84 @@
 import pandas as pd
 import requests 
 import time
+import xmltodict
+import json
+import sys
+from xml.etree import ElementTree
 
 locLink = []
 imageLink = []
 title = []
+imageW = 500
+locFail = []
 year = []
-origFormat = []
 
-url_list = ["https://www.loc.gov/collections/cities-and-towns/?fo=json", "https://www.loc.gov/collections/national-parks-maps/?fo=json",
-            "https://www.loc.gov/collections/railroad-maps-1828-to-1900/?fo=json", "https://www.loc.gov/collections/civil-war-maps/?fo=json",
-            "https://www.loc.gov/collections/sanborn-maps/?fo=json", "https://www.loc.gov/collections/discovery-and-exploration/?fo=json", 
-            "https://www.loc.gov/collections/american-revolutionary-war-maps/?fo=json",
-            "https://www.loc.gov/collections/finding-our-place-in-the-cosmos-with-carl-sagan/?fo=json",
-            "https://www.loc.gov/collections/military-battles-and-campaigns/?fo=json", "https://www.loc.gov/collections/rochambeau-maps/?fo=json",
-            "https://www.loc.gov/collections/transportation-and-communication/?fo=json"]
+url_coleccions = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmGetCollectionList/json"
+url_imatges_col = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmQuery/{coleccio}/all/all/title/1024/0/1/json"
+url_metadata_info = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmGetItemInfo/{coleccio}/{pointer}/json"
+url_image_info = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmGetImageInfo/{coleccio}/{pointer}/xml"
+url_image = "http://cartotecadigital.icc.cat/utils/ajaxhelper/?CISOROOT={coleccio}&CISOPTR={pointer}&action=2&DMSCALE={scale}&DMWIDTH={width}&DMHEIGHT={height}"
+url_single_item = "http://cartotecadigital.icc.cat/cdm/ref/collection/{coleccio}/id/{pointer}"
 
-for u in url_list:
+#collections_json = requests.get(url_coleccions).json() 
+collections_json = ['atles','fecsa','fmones','gsgs4148','bcnprov','america','espanya','europa','africa','oceania','catalunya','monregions','minutes','scmdiba','iccprod','vistes','mtn50','externs','paluzie','lferrer','topo5000','fonscec']
 
-    collections_json = requests.get(u).json() 
+for collection in collections_json:
+    #alias = collection['alias'][1:]
+    alias = collection
+    print alias
+    sys.stdout.flush()
+    images_json = requests.get(url_imatges_col.format(coleccio=alias)).json() 
+    for record in images_json['records']:
+        pointer = record['pointer']
+        try:
+            metadata_info = requests.get(url_metadata_info.format(coleccio=alias,pointer=pointer)).json() 
+            image_info_response = requests.get(url_image_info.format(coleccio=alias,pointer=pointer))
+            image_info = image_info_response.content
+            try:
+                image_info = json.loads(json.dumps(xmltodict.parse(image_info), indent=4))
+                width = int(image_info['imageinfo']['width'])
+                height = int(image_info['imageinfo']['height'])
+                if width != 0 and height != 0: 
+                    longest_size = width if width > height else height
+                    if width != 0:
+                        try:
+                            scale = (imageW*100)/int(longest_size)
+                        except ZeroDivisionError:
+                            print "{} {} {} {}".format(alias,pointer,width, height)
+                            sys.stdout.flush()
+                    else: 
+                        scale=20
+                    imageLink.append(url_image.format(coleccio=alias,pointer=pointer,scale=scale,width=width,height=height))
+                    title.append(metadata_info['title'].encode('utf-8'))
+                    locLink.append(url_single_item.format(coleccio=alias,pointer=pointer))
+                    if metadata_info['date'] != '':
+                        try:
+                            year.append(metadata_info['date'].encode('utf-8'))
+                        except:
+                            year.append('-')
+                    else:
+                        year.append('-')
+            except:
+                print "{} {}".format(alias,pointer)
+                sys.stdout.flush()
+        except:
+             print "{} {}".format(alias,pointer)
+             sys.stdout.flush()
+        #else:
+            #scale=20
+            #locFail.append(url_image.format(coleccio=alias,pointer=pointer,scale=scale,width=width,height=height))
+print "locLink: {}".format(len(locLink))
+print "imageLink: {}".format(len(imageLink))
+print "title: {}".format(len(title))
+print "year: {}".format(len(year))
 
-    while True: 
-        for collection in collections_json["results"]: 
-            locLink.append(collection["url"])
-            title.append(collection["title"].encode('utf8'))
-            origFormat.append(collection["original_format"][0])
-            if "date" in collection:
-                year.append(collection["date"])
-            else:
-                year.append(0)
+locMaps = pd.DataFrame({id:locLink, 'imageLink': imageLink, 'title': title, 'year': year})
 
-            if len(collection["image_url"]) > 4:
-    	       imageLink.append(collection["image_url"][3])
-            else: 
-                imageLink.append("NA")
-
-        next_page = collections_json["pagination"]["next"] 
-        if next_page is not None: 
-            collections_json = requests.get(next_page).json()
-        else:
-            break 
-
-locMaps = pd.DataFrame({id:locLink, 'imageLink': imageLink, 'title': title, 'origFormat': origFormat, 'year': year})
-
-locMaps = locMaps[(locMaps['origFormat'] == "map")]  
 locMaps.drop_duplicates(subset='imageLink', inplace=True)
 
-locMaps.to_csv('locMapsLinks.csv')
+locMaps.to_csv('locMapsLinks_cartoteca.csv')
+
+#locFails = pd.DataFrame({id:locFail})
+
+#locFails.to_csv('locMapsFails_cartoteca.csv')

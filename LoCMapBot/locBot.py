@@ -5,15 +5,14 @@ api = twitter.Api(consumer_key = credentials.CONSUMER_KEY,
                      access_token_key = credentials.ACCESS_KEY,
                      access_token_secret = credentials.ACCESS_SECRET) 
 
-maps = pd.read_csv('locMapsLinks.csv', skiprows=1, header=None, names=['link', 'imageLink', 'origFormat', 'title', 'year'])
+maps = pd.read_csv(os.path.dirname(os.path.abspath(__file__))+'/locMapsLinks_cartoteca.csv', skiprows=1, header=None, names=['link', 'imageLink', 'title', 'year'])
 
-maps['year'] = maps['year'].astype(str).str[:4].str.replace("[^0-9]", "5").astype(int)
+random.seed()
+n = random.randint(0,len(maps)-1)
 
-maps = maps[(maps['year'] < 1990)]  
+resto = 140 - len(str(maps.iloc[n]["year"])) - len(maps.iloc[n]["link"]) - len(" #CartotecaDigital #ICGC") - 2
 
-n = random.randint(0,14737)
+if len(maps.iloc[n]["title"]) > resto:
+ 		maps.iloc[n]["title"] = maps.iloc[n]["title"][:resto-2] + '...'
 
-if len(maps.iloc[n]["title"]) > 112:
- 		maps.iloc[n]["title"] = maps.iloc[n]["title"][:113] + '...'
-
-status = api.PostUpdate(status = maps.iloc[n]["title"] + " " + maps.iloc[n]["link"], media = "https:" + maps.iloc[n]["imageLink"])
+status = api.PostUpdate(status = maps.iloc[n]["title"] + " " + str(maps.iloc[n]["year"]) + " " + maps.iloc[n]["link"] + " #CartotecaDigital #ICGC" , media = maps.iloc[n]["imageLink"])
