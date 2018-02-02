@@ -9,4 +9,4 @@ A collection of bots I've made.
 [LocMap](https://twitter.com/LoCMapBot) - a bot that tweets images of maps from the Library of Congress' digital collections, through [its API](https://labs.loc.gov/lc-for-robots/)
 
 
-Note:  the LocMap code was modified to query CONTENTdm collections and gather items on which a CSV file was created to be used as the source of the tweets.
+Note by Geoinquiets:  the LocMap code was modified to query CONTENTdm collections and gather items on which a CSV file was created to be used as the source of the tweets. The result is a Twitter account that tweets a random image from the Cartoteca Digital collections daily at 11:01 https://twitter.com/mapesantics
