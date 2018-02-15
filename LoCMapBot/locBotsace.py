@@ -5,7 +5,7 @@ api = twitter.Api(consumer_key = credentials2.CONSUMER_KEY,
                      access_token_key = credentials2.ACCESS_KEY,
                      access_token_secret = credentials2.ACCESS_SECRET) 
 
-maps = pd.read_csv(os.path.dirname(os.path.abspath(__file__))+'/locMapsLinks_sace.csv', skiprows=1, header=None, names=['link', 'areageo', 'imageLink', 'title', 'year'])
+maps = pd.read_csv(os.path.dirname(os.path.abspath(__file__))+'/locMapsLinks_sace.csv', skiprows=1, header=None, names=['link', 'areageo', 'identi', 'imageLink', 'title', 'year'])
 
 random.seed()
 n = random.randint(0,len(maps)-1)
