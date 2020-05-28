@@ -13,10 +13,10 @@ imageW = 500
 locFail = []
 year = []
 
-url_coleccions = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmGetCollectionList/json"
-url_imatges_col = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmQuery/{coleccio}/all/all/title/1024/0/1/json"
-url_metadata_info = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmGetItemInfo/{coleccio}/{pointer}/json"
-url_image_info = "http://cartotecadigital.icc.cat/dmwebservices/index.php?q=dmGetImageInfo/{coleccio}/{pointer}/xml"
+url_coleccions = "http://cartotecadigital.icc.cat/digital/bl/dmwebservices/index.php?q=dmGetCollectionList/json"
+url_imatges_col = "http://cartotecadigital.icc.cat/digital/bl/dmwebservices/index.php?q=dmQuery/{coleccio}/all/all/title/1024/0/1/json"
+url_metadata_info = "http://cartotecadigital.icc.cat/digital/bl/dmwebservices/index.php?q=dmGetItemInfo/{coleccio}/{pointer}/json"
+url_image_info = "http://cartotecadigital.icc.cat/digital/bl/dmwebservices/index.php?q=dmGetImageInfo/{coleccio}/{pointer}/xml"
 url_image = "http://cartotecadigital.icc.cat/utils/ajaxhelper/?CISOROOT={coleccio}&CISOPTR={pointer}&action=2&DMSCALE={scale}&DMWIDTH={width}&DMHEIGHT={height}"
 url_single_item = "http://cartotecadigital.icc.cat/cdm/ref/collection/{coleccio}/id/{pointer}"
 
